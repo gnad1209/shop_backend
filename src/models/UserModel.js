@@ -8,6 +8,7 @@ const userSchema = new mongoose.Schema({
     address:{type:String},
     avatar:{type:String},
     city:{type:String},
+    isDelete:{type:Boolean,default:false,required:true}
     },
     {
         timestamps:true

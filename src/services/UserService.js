@@ -99,6 +99,7 @@ const updateUser = (id,data) =>{
         }
     })
 }
+
 const deleteUser = (id) =>{
     return new Promise(async(resolve,reject)=>{
         try{
@@ -122,10 +123,33 @@ const deleteUser = (id) =>{
     })
 }
 
+const softDeleteUser = (id) =>{
+    return new Promise(async(resolve,reject)=>{
+        try{
+            const checkUser = await User.findOne({
+                _id: id
+            })
+            if(checkUser === null){
+                resolve({
+                    status:"404",
+                    message:"the user is not defined"
+                })
+            }
+            const softDeleteUser = await User.findByIdAndUpdate(id,{isDelete:true})
+            resolve({
+                status:"OK",
+                message:"SUCCESS",
+            })
+        }catch(e){
+            reject(e)
+        }
+    })
+}
+
 const getAllUser = () =>{
     return new Promise(async(resolve,reject)=>{
         try{
-            const getAllUser = await User.find()
+            const getAllUser = await User.find({isDelete:false})
             resolve({
                 status:"OK",
                 message:"SUCCESS",
@@ -136,6 +160,7 @@ const getAllUser = () =>{
         }
     })
 }
+
 const getDetailUser = (id) =>{
     return new Promise(async(resolve,reject)=>{
         try{
@@ -164,5 +189,6 @@ module.exports = {
     updateUser,
     deleteUser,
     getAllUser,
-    getDetailUser
+    getDetailUser,
+    softDeleteUser
 }
