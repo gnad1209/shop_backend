@@ -99,8 +99,70 @@ const updateUser = (id,data) =>{
         }
     })
 }
+const deleteUser = (id) =>{
+    return new Promise(async(resolve,reject)=>{
+        try{
+            const checkUser = await User.findOne({
+                _id: id
+            })
+            if(checkUser === null){
+                resolve({
+                    status:"404",
+                    message:"the user is not defined"
+                })
+            }
+            const deleteUser = await User.findByIdAndDelete(id)
+            resolve({
+                status:"OK",
+                message:"Delete SUCCESS",
+            })
+        }catch(e){
+            reject(e)
+        }
+    })
+}
+
+const getAllUser = () =>{
+    return new Promise(async(resolve,reject)=>{
+        try{
+            const getAllUser = await User.find()
+            resolve({
+                status:"OK",
+                message:"SUCCESS",
+                data: getAllUser
+            })
+        }catch(e){
+            reject(e)
+        }
+    })
+}
+const getDetailUser = (id) =>{
+    return new Promise(async(resolve,reject)=>{
+        try{
+            const user = await User.findOne({
+                _id: id
+            })
+            if(user === null){
+                resolve({
+                    status:"404",
+                    message:"the user is not defined"
+                })
+            }
+            resolve({
+                status:"OK",
+                message:"SUCCESS",
+                data: user
+            })
+        }catch(e){
+            reject(e)
+        }
+    })
+}
 module.exports = {
     createUser,
     loginUser,
-    updateUser
+    updateUser,
+    deleteUser,
+    getAllUser,
+    getDetailUser
 }

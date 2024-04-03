@@ -10,12 +10,13 @@ const genneralAccessToken = (payload) =>{
 }
 
 const genneralRefreshToken = (payload) =>{
-    console.log(payload);
     const refresh_token = jwt.sign({
         payload
     },process.env.REFRESH_TOKEN, {expiresIn:'365d'})
     return refresh_token
 }
+
+
 
 module.exports = {
     genneralAccessToken,
