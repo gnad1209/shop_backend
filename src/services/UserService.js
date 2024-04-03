@@ -75,7 +75,32 @@ const loginUser = (userLogin) =>{
         }
     })
 }
+
+const updateUser = (id,data) =>{
+    return new Promise(async(resolve,reject)=>{
+        try{
+            const checkUser = await User.findOne({
+                _id: id
+            })
+            if(checkUser === null){
+                resolve({
+                    status:"404",
+                    message:"the user is not defined"
+                })
+            }
+            const updateUser = await User.findByIdAndUpdate(id,data,{new:true})
+            resolve({
+                status:"OK",
+                message:"SUCCESS",
+                data: updateUser
+            })
+        }catch(e){
+            reject(e)
+        }
+    })
+}
 module.exports = {
     createUser,
-    loginUser
+    loginUser,
+    updateUser
 }
