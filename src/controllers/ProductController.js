@@ -2,26 +2,33 @@ const ProductService = require('../services/ProductService')
 
 const createProduct = async (req,res) =>{
     try{
-        const {name,email,password,confirmPassword,phone} = req.body
-        const reg =  /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
-        const isCheckEmail = reg.test(email)
-        if(!name||!email||!password||!confirmPassword||!phone){
+        const {name,image,type,price,countInStock,rating,description,discount,selled} = req.body
+        if(!name||!image||!type||!price||!countInStock||!rating){
             return res.status(400).json({
                 status:'err',
                 message:'the input reuired'
             })
-        }else if(!isCheckEmail){
+        }
+        const response = await ProductService.createProduct(req.body)
+        return res.status(200).json(response)
+    }catch(e){
+        return res.status(404).json({
+            message:e
+        })
+    }
+}
+
+const updateProduct = async (req,res) =>{
+    try{
+        const productId = req.params.id
+        const data = req.body
+        if(!productId){
             return res.status(400).json({
                 status:'err',
-                message:'the input email'
-            })
-        }else if(password !== confirmPassword){
-            return res.status(400).json({
-                status:'err',
-                message:'the input password'
+                message:'the productid is required'
             })
         }
-        // const response = await ProductService.createUser(req.body)
+        const response = await ProductService.updateProduct(productId,data)
         return res.status(200).json(response)
     }catch(e){
         return res.status(404).json({
@@ -31,6 +38,79 @@ const createProduct = async (req,res) =>{
 }
 
 
+const getDetailProduct = async (req,res) =>{
+    try{
+        const productId = req.params.id
+        if(!productId){
+            return res.status(400).json({
+                status:'err',
+                message:'the userid is required'
+            })
+        }
+        const response = await ProductService.getDetailProduct(productId)
+        return res.status(200).json(response)
+    }catch(e){
+        return res.status(404).json({
+            message:e
+        })
+    }
+}
+
+const getAllProduct = async (req,res) =>{
+    try{
+        const {limit,page} = req.query
+        const response = await ProductService.getAllProduct(Number(limit),Number(page))
+        return res.status(200).json(response)
+    }catch(e){
+        return res.status(404).json({
+            message:e
+        })
+    }
+}
+
+const deleteProduct = async (req,res) =>{
+    try{
+        const productId = req.params.id
+        const token = req.headers
+        if(!productId){
+            return res.status(400).json({
+                status:'err',
+                message:'the userid is required'
+            })
+        }
+        const response = await ProductService.deleteProduct(productId)
+        return res.status(200).json(response)
+    }catch(e){
+        return res.status(404).json({
+            message:e
+        })
+    }
+}
+
+const softDeleteProduct = async (req,res) =>{
+    try{
+        const productId = req.params.id
+        const token = req.headers
+        if(!productId){
+            return res.status(400).json({
+                status:'err',
+                message:'the userid is required'
+            })
+        }
+        const response = await ProductService.softDeleteProduct(productId)
+        return res.status(200).json(response)
+    }catch(e){
+        return res.status(404).json({
+            message:e
+        })
+    }
+}
+
 module.exports = {
     createProduct,
+    updateProduct,
+    getDetailProduct,
+    deleteProduct,
+    softDeleteProduct,
+    getAllProduct
 }
