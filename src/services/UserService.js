@@ -1,6 +1,7 @@
 const User = require('../models/UserModel')
 const bcrypt = require("bcrypt")
 const { genneralAccessToken,genneralRefreshToken} = require('../services/JwtService')
+const jwt = require("jsonwebtoken")
 
 const createUser = (newUser) =>{
     return new Promise(async(resolve,reject)=>{
@@ -52,7 +53,7 @@ const loginUser = (userLogin) =>{
             if(!comparePassword){
                 resolve({
                     status:"OK",
-                    message:"the password or user is incorrect"
+                    message:"the password is incorrect"
                 })
             }
             const access_token = await genneralAccessToken({
@@ -183,6 +184,8 @@ const getDetailUser = (id) =>{
         }
     })
 }
+
+
 module.exports = {
     createUser,
     loginUser,
@@ -190,5 +193,5 @@ module.exports = {
     deleteUser,
     getAllUser,
     getDetailUser,
-    softDeleteUser
+    softDeleteUser,
 }

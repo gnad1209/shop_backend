@@ -1,4 +1,5 @@
 const UserService = require('../services/UserService')
+const JwtService = require('../services/JwtService')
 
 const createUser = async (req,res) =>{
     try{
@@ -29,6 +30,7 @@ const createUser = async (req,res) =>{
         })
     }
 }
+
 const loginUser = async (req,res) =>{
     try{
         const {email,password,phone} = req.body
@@ -53,6 +55,7 @@ const loginUser = async (req,res) =>{
         })
     }
 }
+
 const updateUser = async (req,res) =>{
     try{
         const userId = req.params.id
@@ -138,6 +141,25 @@ const getDetailUser = async (req,res) =>{
         })
     }
 }
+
+const refreshToken = async (req,res) =>{
+    try{
+        const token = req.headers.token.split(' ')[1]
+        if(!token){
+            return res.status(400).json({
+                status:'err',
+                message:'the userid is required'
+            })
+        }
+        const response = await JwtService.refreshToken(token)
+        return res.status(200).json(response)
+    }catch(e){
+        return res.status(404).json({
+            message:e
+        })
+    }
+}
+
 module.exports = {
     createUser,
     loginUser,
@@ -145,5 +167,6 @@ module.exports = {
     deleteUser,
     getAllUser,
     getDetailUser,
-    softDeleteUser
+    softDeleteUser,
+    refreshToken
 }
