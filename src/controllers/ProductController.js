@@ -5,7 +5,7 @@ const createProduct = async (req,res) =>{
         const {name,image,type,price,countInStock,rating,description,discount,selled} = req.body
         if(!name||!image||!type||!price||!countInStock||!rating){
             return res.status(400).json({
-                status:'err',
+                status:'ERR',
                 message:'the input reuired'
             })
         }
@@ -24,7 +24,7 @@ const updateProduct = async (req,res) =>{
         const data = req.body
         if(!productId){
             return res.status(400).json({
-                status:'err',
+                status:'ERR',
                 message:'the productid is required'
             })
         }
@@ -43,7 +43,7 @@ const getDetailProduct = async (req,res) =>{
         const productId = req.params.id
         if(!productId){
             return res.status(400).json({
-                status:'err',
+                status:'ERR',
                 message:'the userid is required'
             })
         }
@@ -58,8 +58,8 @@ const getDetailProduct = async (req,res) =>{
 
 const getAllProduct = async (req,res) =>{
     try{
-        const {limit,page} = req.query
-        const response = await ProductService.getAllProduct(Number(limit),Number(page))
+        const {limit,page,sort,filter} = req.query
+        const response = await ProductService.getAllProduct(Number(limit) || 8, Number(page) || 0, sort,filter)
         return res.status(200).json(response)
     }catch(e){
         return res.status(404).json({
@@ -74,7 +74,7 @@ const deleteProduct = async (req,res) =>{
         const token = req.headers
         if(!productId){
             return res.status(400).json({
-                status:'err',
+                status:'ERR',
                 message:'the userid is required'
             })
         }
@@ -93,7 +93,7 @@ const softDeleteProduct = async (req,res) =>{
         const token = req.headers
         if(!productId){
             return res.status(400).json({
-                status:'err',
+                status:'ERR',
                 message:'the userid is required'
             })
         }

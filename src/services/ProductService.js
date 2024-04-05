@@ -48,7 +48,7 @@ const updateProduct = (id,data) =>{
             })
             if(checkProduct === null){
                 resolve({
-                    status:"404",
+                    status:"ERR",
                     message:"the product is not defined"
                 })
             }
@@ -72,7 +72,7 @@ const getDetailProduct = (id) =>{
             })
             if(product === null){
                 resolve({
-                    status:"404",
+                    status:"ERR",
                     message:"the user is not defined"
                 })
             }
@@ -87,10 +87,37 @@ const getDetailProduct = (id) =>{
     })
 }
 
-const getAllProduct = (limit ,page ) =>{
+const getAllProduct = (limit ,page ,sort,filter) =>{
     return new Promise(async(resolve,reject)=>{
         try{
             const totalProduct = await Product.countDocuments()
+            if(filter){
+                const objectFilter = {}
+                objectFilter[filter[1]] = filter[0]
+                const lable = filter[0]
+                const getAllProductFilter = await Product.find({isDelete:false,[lable]:{'$regex':filter[1]}}).limit(limit).skip(page * limit)
+                resolve({
+                    status:"OK",
+                    message:"SUCCESS",
+                    data: getAllProductFilter,
+                    total: totalProduct,
+                    pageCurrent: page + 1,
+                    totalPage: Math.ceil(totalProduct/limit)
+                })
+            }
+            if(sort){
+                const objectSort = {}
+                objectSort[sort[1]] = sort[0]
+                const getAllProductSort = await Product.find({isDelete:false}).limit(limit).skip(page * limit).sort(objectSort)
+                resolve({
+                    status:"OK",
+                    message:"SUCCESS",
+                    data: getAllProductSort,
+                    total: totalProduct,
+                    pageCurrent: page + 1,
+                    totalPage: Math.ceil(totalProduct/limit)
+                })
+            }
             const getAllProduct = await Product.find({isDelete:false}).limit(limit).skip(page * limit)
             resolve({
                 status:"OK",
@@ -114,7 +141,7 @@ const deleteProduct = (id) =>{
             })
             if(checkProduct === null){
                 resolve({
-                    status:"404",
+                    status:"ERR",
                     message:"the user is not defined"
                 })
             }
@@ -137,7 +164,7 @@ const softDeleteProduct = (id) =>{
             })
             if(checkProduct === null){
                 resolve({
-                    status:"404",
+                    status:"ERR",
                     message:"the user is not defined"
                 })
             }

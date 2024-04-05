@@ -6,19 +6,19 @@ const createUser = async (req,res) =>{
         const {name,email,password,confirmPassword,phone} = req.body
         const reg =  /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
         const isCheckEmail = reg.test(email)
-        if(!name||!email||!password||!confirmPassword||!phone){
+        if(!email||!password||!confirmPassword){
             return res.status(400).json({
-                status:'err',
+                status:'ERR',
                 message:'the input reuired'
             })
         }else if(!isCheckEmail){
             return res.status(400).json({
-                status:'err',
+                status:'ERR',
                 message:'the input email'
             })
         }else if(password !== confirmPassword){
             return res.status(400).json({
-                status:'err',
+                status:'ERR',
                 message:'the input password'
             })
         }
@@ -36,19 +36,24 @@ const loginUser = async (req,res) =>{
         const {email,password,phone} = req.body
         const reg =  /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
         const isCheckEmail = reg.test(email)
-        if(!email||!password||!phone){
+        if(!email||!password){
             return res.status(400).json({
-                status:'err',
+                status:'ERR',
                 message:'the input reuired'
             })
         }else if(!isCheckEmail){
             return res.status(400).json({
-                status:'err',
+                status:'ERR',
                 message:'the input email'
             })
         }
         const response = await UserService.loginUser(req.body)
-        return res.status(200).json(response)
+        const {refresh_token, ...newRespone} = response
+        res.cookie('refresh_token',refresh_token,{
+            HttpOnly: true,
+            Secure:true
+        })
+        return res.status(200).json(newRespone)
     }catch(e){
         return res.status(404).json({
             message:e
@@ -62,7 +67,7 @@ const updateUser = async (req,res) =>{
         const data = req.body
         if(!userId){
             return res.status(400).json({
-                status:'err',
+                status:'ERR',
                 message:'the userid is required'
             })
         }
@@ -81,7 +86,7 @@ const deleteUser = async (req,res) =>{
         const token = req.headers
         if(!userId){
             return res.status(400).json({
-                status:'err',
+                status:'ERR',
                 message:'the userid is required'
             })
         }
@@ -100,7 +105,7 @@ const softDeleteUser = async (req,res) =>{
         const token = req.headers
         if(!userId){
             return res.status(400).json({
-                status:'err',
+                status:'ERR',
                 message:'the userid is required'
             })
         }
@@ -129,7 +134,7 @@ const getDetailUser = async (req,res) =>{
         const userId = req.params.id
         if(!userId){
             return res.status(400).json({
-                status:'err',
+                status:'ERR',
                 message:'the userid is required'
             })
         }
@@ -144,10 +149,10 @@ const getDetailUser = async (req,res) =>{
 
 const refreshToken = async (req,res) =>{
     try{
-        const token = req.headers.token.split(' ')[1]
+        const token = req.cookies.refresh_token
         if(!token){
             return res.status(400).json({
-                status:'err',
+                status:'ERR',
                 message:'the userid is required'
             })
         }
