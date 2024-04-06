@@ -50,8 +50,9 @@ const loginUser = async (req,res) =>{
         const response = await UserService.loginUser(req.body)
         const {refresh_token, ...newRespone} = response
         res.cookie('refresh_token',refresh_token,{
-            HttpOnly: true,
-            Secure:true
+            httpOnly: true,
+            secure: false,
+            samesite:'strict'
         })
         return res.status(200).json(newRespone)
     }catch(e){
@@ -147,17 +148,31 @@ const getDetailUser = async (req,res) =>{
     }
 }
 
-const refreshToken = async (req,res) =>{
+const logoutUser = async (req,res) =>{
     try{
-        const token = req.cookies.refresh_token
-        if(!token){
+        const userId = req.params.id
+        if(!userId){
             return res.status(400).json({
                 status:'ERR',
                 message:'the userid is required'
             })
         }
-        const response = await JwtService.refreshToken(token)
+        const response = await UserService.getDetailUser(userId)
         return res.status(200).json(response)
+    }catch(e){
+        return res.status(404).json({
+            message:e
+        })
+    }
+}
+
+const refreshToken = async (req,res) =>{
+    try{
+        res.clearCookie('refresh_token')
+        return res.status(200).json({
+            status:'OK',
+            message:'Logout success'
+        })
     }catch(e){
         return res.status(404).json({
             message:e
@@ -173,5 +188,6 @@ module.exports = {
     getAllUser,
     getDetailUser,
     softDeleteUser,
-    refreshToken
+    refreshToken,
+    logoutUser
 }

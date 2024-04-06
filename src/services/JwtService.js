@@ -22,15 +22,14 @@ const refreshToken = (token) =>{
             jwt.verify(token,process.env.REFRESH_TOKEN,async (err,user)=>{
                 if(err){
                     resolve({
-                        status:"ERROR",
+                        status:"ERR",
                         message:"the authentication"
                     })
                 }
                 // console.log(user)
-                const { payload } = user
                 const access_token = await genneralAccessToken({
-                    id: payload?.id,
-                    isAdmin: payload?.isAdmin
+                    id: user?.id,
+                    isAdmin: user?.isAdmin
                 })
                 resolve({
                     status:"OK",
