@@ -1,6 +1,7 @@
 const User = require('../models/UserModel')
 const bcrypt = require("bcrypt")
 const { genneralAccessToken,genneralRefreshToken} = require('../services/JwtService')
+const jwt = require("jsonwebtoken")
 
 const createUser = (newUser) =>{
     return new Promise(async(resolve,reject)=>{
@@ -11,7 +12,7 @@ const createUser = (newUser) =>{
             })
             if(checkUser !== null){
                 resolve({
-                    status:"OK",
+                    status:"ERR",
                     message:"the email is already"
                 })
             }
@@ -37,22 +38,22 @@ const createUser = (newUser) =>{
 }
 const loginUser = (userLogin) =>{
     return new Promise(async(resolve,reject)=>{
-        const { name, email, password, phone} = userLogin
+        const { email, password} = userLogin
         try{
             const checkUser = await User.findOne({
                 email:email
             })
             if(checkUser === null){
                 resolve({
-                    status:"OK",
+                    status:"ERR",
                     message:"the email is not defined"
                 })
             }
             const comparePassword = bcrypt.compareSync(password,checkUser.password)
             if(!comparePassword){
                 resolve({
-                    status:"OK",
-                    message:"the password or user is incorrect"
+                    status:"ERR",
+                    message:"the password is incorrect"
                 })
             }
             const access_token = await genneralAccessToken({
@@ -63,7 +64,6 @@ const loginUser = (userLogin) =>{
                 id:checkUser.id,
                 isAdmin:checkUser.isAdmin
             })
-            console.log(access_token);
             resolve({
                 status:"OK",
                 message:"SUCCESS",
@@ -75,7 +75,122 @@ const loginUser = (userLogin) =>{
         }
     })
 }
+
+const updateUser = (id,data) =>{
+    return new Promise(async(resolve,reject)=>{
+        try{
+            const checkUser = await User.findOne({
+                _id: id
+            })
+            if(checkUser === null){
+                resolve({
+                    status:"404",
+                    message:"the user is not defined"
+                })
+            }
+            const updateUser = await User.findByIdAndUpdate(id,data,{new:true})
+            resolve({
+                status:"OK",
+                message:"SUCCESS",
+                data: updateUser
+            })
+        }catch(e){
+            reject(e)
+        }
+    })
+}
+
+const deleteUser = (id) =>{
+    return new Promise(async(resolve,reject)=>{
+        try{
+            const checkUser = await User.findOne({
+                _id: id
+            })
+            if(checkUser === null){
+                resolve({
+                    status:"404",
+                    message:"the user is not defined"
+                })
+            }
+            const deleteUser = await User.findByIdAndDelete(id)
+            resolve({
+                status:"OK",
+                message:"Delete SUCCESS",
+            })
+        }catch(e){
+            reject(e)
+        }
+    })
+}
+
+const softDeleteUser = (id) =>{
+    return new Promise(async(resolve,reject)=>{
+        try{
+            const checkUser = await User.findOne({
+                _id: id
+            })
+            if(checkUser === null){
+                resolve({
+                    status:"404",
+                    message:"the user is not defined"
+                })
+            }
+            const softDeleteUser = await User.findByIdAndUpdate(id,{isDelete:true})
+            resolve({
+                status:"OK",
+                message:"SUCCESS",
+            })
+        }catch(e){
+            reject(e)
+        }
+    })
+}
+
+const getAllUser = () =>{
+    return new Promise(async(resolve,reject)=>{
+        try{
+            const getAllUser = await User.find({isDelete:false})
+            resolve({
+                status:"OK",
+                message:"SUCCESS",
+                data: getAllUser
+            })
+        }catch(e){
+            reject(e)
+        }
+    })
+}
+
+const getDetailUser = (id) =>{
+    return new Promise(async(resolve,reject)=>{
+        try{
+            const user = await User.findOne({
+                _id: id
+            })
+            if(user === null){
+                resolve({
+                    status:"404",
+                    message:"the user is not defined"
+                })
+            }
+            resolve({
+                status:"OK",
+                message:"SUCCESS",
+                data: user
+            })
+        }catch(e){
+            reject(e)
+        }
+    })
+}
+
+
 module.exports = {
     createUser,
-    loginUser
+    loginUser,
+    updateUser,
+    deleteUser,
+    getAllUser,
+    getDetailUser,
+    softDeleteUser,
 }
