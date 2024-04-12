@@ -157,7 +157,7 @@ const refreshToken = async (req, res) => {
                 message: 'The token is required'
             })
         }
-        const response = await JwtService.refreshTokenJwtService(token)
+        const response = await JwtService.refreshToken(token)
         return res.status(200).json(response)
     } catch (e) {
         return res.status(404).json({
