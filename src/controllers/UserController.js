@@ -32,32 +32,33 @@ const createUser = async (req,res) =>{
 }
 
 const loginUser = async (req,res) =>{
-    try{
-        const {email,password,phone} = req.body
-        const reg =  /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
+    try {
+        const { email, password } = req.body
+        const reg = /^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/
         const isCheckEmail = reg.test(email)
-        if(!email||!password){
-            return res.status(400).json({
-                status:'ERR',
-                message:'the input reuired'
+        if (!email || !password) {
+            return res.status(200).json({
+                status: 'ERR',
+                message: 'The input is required'
             })
-        }else if(!isCheckEmail){
-            return res.status(400).json({
-                status:'ERR',
-                message:'the input email'
+        } else if (!isCheckEmail) {
+            return res.status(200).json({
+                status: 'ERR',
+                message: 'The input is email'
             })
         }
         const response = await UserService.loginUser(req.body)
-        const {refresh_token, ...newRespone} = response
-        res.cookie('refresh_token',refresh_token,{
+        const { refresh_token, ...newReponse } = response
+        res.cookie('refresh_token', refresh_token, {
             httpOnly: true,
             secure: false,
-            samesite:'strict'
+            sameSite: 'strict',
+            path: '/',
         })
-        return res.status(200).json(newRespone)
-    }catch(e){
+        return res.status(200).json({...newReponse, refresh_token})
+    } catch (e) {
         return res.status(404).json({
-            message:e
+            message: e
         })
     }
 }
