@@ -20,10 +20,10 @@ const createProduct = (newProduct) =>{
                 image,
                 type,
                 price,
-                countInStock,
+                countInStock: Number(countInStock),
                 rating,
                 description,
-                discount,
+                discount: Number(discount),
                 selled
             })
             if(createProduct) {
@@ -179,11 +179,42 @@ const softDeleteProduct = (id) =>{
     })
 }
 
+const deleteManyProduct = (ids) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            await Product.updateMany({ _id: ids },{isDelete:true})
+            resolve({
+                status: 'OK',
+                message: 'Delete product success',
+            })
+        } catch (e) {
+            reject(e)
+        }
+    })
+}
+
+const getAllType = () => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const allType = await Product.distinct('type')
+            resolve({
+                status: 'OK',
+                message: 'Success',
+                data: allType,
+            })
+        } catch (e) {
+            reject(e)
+        }
+    })
+}
+
 module.exports = {
     createProduct,
     updateProduct,
     getDetailProduct,
     deleteProduct,
     softDeleteProduct,
-    getAllProduct
+    getAllProduct,
+    getAllType,
+    deleteManyProduct
 }
