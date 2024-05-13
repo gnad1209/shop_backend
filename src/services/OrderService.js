@@ -91,7 +91,7 @@ const getAllOrderDetails = (id) => {
     return new Promise(async (resolve, reject) => {
         try {
             const order = await Order.find({
-                user: id
+                user: id,isDelete:false
             }).sort({createdAt: -1, updatedAt: -1})
             if (order === null) {
                 resolve({
@@ -116,7 +116,8 @@ const getOrderDetails = (id) => {
     return new Promise(async (resolve, reject) => {
         try {
             const order = await Order.findById({
-                _id: id
+                _id: id,
+                isDelete:false
             })
             if (order === null) {
                 resolve({
@@ -154,7 +155,7 @@ const cancelOrderDetails = (id, data) => {
                     {new: true}
                 )
                 if(productData) {
-                    order = await Order.findByIdAndDelete(id)
+                    order = await Order.findByIdAndUpdate(id,{isDelete:true})
                     if (order === null) {
                         resolve({
                             status: 'ERR',
@@ -192,7 +193,7 @@ const cancelOrderDetails = (id, data) => {
 const getAllOrder = () => {
     return new Promise(async (resolve, reject) => {
         try {
-            const allOrder = await Order.find().sort({createdAt: -1, updatedAt: -1})
+            const allOrder = await Order.find({isDelete:false}).sort({createdAt: -1, updatedAt: -1})
             resolve({
                 status: 'OK',
                 message: 'Success',

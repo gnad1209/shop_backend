@@ -2,6 +2,15 @@ const User = require('../models/UserModel')
 const bcrypt = require("bcrypt")
 const { genneralAccessToken,genneralRefreshToken} = require('../services/JwtService')
 const jwt = require("jsonwebtoken")
+const dotenv = require("dotenv")
+dotenv.config()
+const cloudinary = require('cloudinary').v2;
+
+cloudinary.config({
+  cloud_name: process.env.CLOUD_NAME,
+  api_key: process.env.API_KEY,
+  api_secret: process.env.API_SECRET
+});
 
 const createUser = (newUser) =>{
     return new Promise(async(resolve,reject)=>{
@@ -100,6 +109,31 @@ const updateUser = (id,data) =>{
     })
 }
 
+const uploadImage = (file) => {
+    return new Promise(async(resolve,reject)=>{
+        try{
+            if (!file) {
+                return resolve({
+                    status:"404",
+                    message:"no image file provided"
+                })
+            }
+            cloudinary.uploader.upload_stream({ folder: 'images' }, (error, result) => {
+                if (error) {
+                  return resolve({
+                    status:"404",
+                    message:"upload file failed"
+                })
+                }
+                return resolve({ public_id: result.public_id, url: result.secure_url });
+              }).end(file.buffer);
+        }
+        catch(e){
+            reject(e)
+        }
+    })
+}
+
 const deleteUser = (id) =>{
     return new Promise(async(resolve,reject)=>{
         try{
@@ -189,6 +223,7 @@ module.exports = {
     createUser,
     loginUser,
     updateUser,
+    uploadImage,
     deleteUser,
     getAllUser,
     getDetailUser,
