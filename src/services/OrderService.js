@@ -58,13 +58,17 @@ const createOrder = (newOrder) => {
                     user: user,
                     isPaid, paidAt
                 })
-                if (createdOrder) {
-                    await EmailService.sendEmailCreateOrder(email,orderItems)
-                    resolve({
-                        status: 'OK',
-                        message: 'success'
-                    })
-                }
+                resolve({
+                            status: 'OK',
+                            message: 'success'
+                        })
+                // if (createdOrder) {
+                //     await EmailService.sendEmailCreateOrder(email,orderItems)
+                //     resolve({
+                //         status: 'OK',
+                //         message: 'success'
+                //     })
+                // }
             }
         } catch (e) {
         //   console.log('e', e)
