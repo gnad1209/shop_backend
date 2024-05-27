@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+
 const userSchema = new mongoose.Schema({
     name: {type: String},
     email:{type:String, required:true,unique:true},
@@ -6,7 +7,7 @@ const userSchema = new mongoose.Schema({
     isAdmin:{type:Boolean,default:false,required:true},
     phone:{type:Number},
     address:{type:String},
-    avatar:{type:String},
+    avatar:{ type:String},
     city:{type:String},
     isDelete:{type:Boolean,default:false,required:true}
     },

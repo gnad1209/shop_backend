@@ -67,12 +67,16 @@ const updateUser = async (req,res) =>{
     try{
         const userId = req.params.id
         const data = req.body
+        const file = req.file
         if(!userId){
             return res.status(400).json({
                 status:'ERR',
                 message:'the userid is required'
             })
         }
+        const upload = await UserService.uploadImage(file)
+        data.avatar = upload.url
+        console.log(file)
         const response = await UserService.updateUser(userId,data)
         return res.status(200).json(response)
     }catch(e){
