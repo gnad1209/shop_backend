@@ -1,28 +1,28 @@
 const User = require('../models/UserModel')
 const bcrypt = require("bcrypt")
-const { genneralAccessToken,genneralRefreshToken} = require('../services/JwtService')
+const { genneralAccessToken, genneralRefreshToken } = require('../services/JwtService')
 const jwt = require("jsonwebtoken")
 const dotenv = require("dotenv")
 dotenv.config()
 const cloudinary = require('cloudinary').v2;
 
 cloudinary.config({
-  cloud_name: process.env.CLOUD_NAME,
-  api_key: process.env.API_KEY,
-  api_secret: process.env.API_SECRET
+    cloud_name: process.env.CLOUD_NAME,
+    api_key: process.env.API_KEY,
+    api_secret: process.env.API_SECRET
 });
 
-const createUser = (newUser) =>{
-    return new Promise(async(resolve,reject)=>{
-        const { name, email, password, confirmPassword, phone} = newUser
-        try{
+const createUser = (newUser) => {
+    return new Promise(async (resolve, reject) => {
+        const { name, email, password, confirmPassword, phone } = newUser
+        try {
             const checkUser = await User.findOne({
-                email:email
+                email: email
             })
-            if(checkUser !== null){
+            if (checkUser !== null) {
                 resolve({
-                    status:"ERR",
-                    message:"the email is already"
+                    status: "ERR",
+                    message: "the email is already"
                 })
             }
             const hash = bcrypt.hashSync(password, 10);
@@ -32,187 +32,187 @@ const createUser = (newUser) =>{
                 password: hash,
                 phone
             })
-            if(createUser) {
+            if (createUser) {
                 resolve({
-                    status:'OK',
-                    message:'SUCCESS',
-                    data:createUser
+                    status: 'OK',
+                    message: 'SUCCESS',
+                    data: createUser
                 })
             }
             resolve({})
-        }catch(e){
+        } catch (e) {
             reject(e)
         }
     })
 }
-const loginUser = (userLogin) =>{
-    return new Promise(async(resolve,reject)=>{
-        const { email, password} = userLogin
-        try{
+const loginUser = (userLogin) => {
+    return new Promise(async (resolve, reject) => {
+        const { email, password } = userLogin
+        try {
             const checkUser = await User.findOne({
-                email:email
+                email: email
             })
-            if(checkUser === null){
+            if (checkUser === null) {
                 resolve({
-                    status:"ERR",
-                    message:"the email is not defined"
+                    status: "ERR",
+                    message: "the email is not defined"
                 })
             }
-            const comparePassword = bcrypt.compareSync(password,checkUser.password)
-            if(!comparePassword){
+            const comparePassword = bcrypt.compareSync(password, checkUser.password)
+            if (!comparePassword) {
                 resolve({
-                    status:"ERR",
-                    message:"the password is incorrect"
+                    status: "ERR",
+                    message: "the password is incorrect"
                 })
             }
             const access_token = await genneralAccessToken({
-                id:checkUser.id,
-                isAdmin:checkUser.isAdmin
+                id: checkUser.id,
+                isAdmin: checkUser.isAdmin
             })
             const refresh_token = await genneralRefreshToken({
-                id:checkUser.id,
-                isAdmin:checkUser.isAdmin
+                id: checkUser.id,
+                isAdmin: checkUser.isAdmin
             })
             resolve({
-                status:"OK",
-                message:"SUCCESS",
+                status: "OK",
+                message: "SUCCESS",
                 access_token,
                 refresh_token,
             })
-        }catch(e){
+        } catch (e) {
             reject(e)
         }
     })
 }
 
-const updateUser = (id,data) =>{
-    return new Promise(async(resolve,reject)=>{
-        try{
+const updateUser = (id, data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
             const checkUser = await User.findOne({
                 _id: id
             })
-            if(checkUser === null){
+            if (checkUser === null) {
                 resolve({
-                    status:"404",
-                    message:"the user is not defined"
+                    status: "404",
+                    message: "the user is not defined"
                 })
             }
-            const updateUser = await User.findByIdAndUpdate(id,data,{new:true})
+            const updateUser = await User.findByIdAndUpdate(id, data, { new: true })
             resolve({
-                status:"OK",
-                message:"SUCCESS",
+                status: "OK",
+                message: "SUCCESS",
                 data: updateUser
             })
-        }catch(e){
+        } catch (e) {
             reject(e)
         }
     })
 }
 
 const uploadImage = (file) => {
-    return new Promise(async(resolve,reject)=>{
-        try{
+    return new Promise(async (resolve, reject) => {
+        try {
             if (!file) {
                 return resolve({
-                    status:"404",
-                    message:"no image file provided"
+                    status: "404",
+                    message: "no image file provided"
                 })
             }
             cloudinary.uploader.upload_stream({ folder: 'images' }, (error, result) => {
                 if (error) {
-                  return resolve({
-                    status:"404",
-                    message:"upload file failed"
-                })
+                    return resolve({
+                        status: "404",
+                        message: "upload file failed"
+                    })
                 }
                 return resolve({ public_id: result.public_id, url: result.secure_url });
-              }).end(file.buffer);
+            }).end(file.buffer);
         }
-        catch(e){
+        catch (e) {
             reject(e)
         }
     })
 }
 
-const deleteUser = (id) =>{
-    return new Promise(async(resolve,reject)=>{
-        try{
+const deleteUser = (id) => {
+    return new Promise(async (resolve, reject) => {
+        try {
             const checkUser = await User.findOne({
                 _id: id
             })
-            if(checkUser === null){
+            if (checkUser === null) {
                 resolve({
-                    status:"404",
-                    message:"the user is not defined"
+                    status: "404",
+                    message: "the user is not defined"
                 })
             }
             const deleteUser = await User.findByIdAndDelete(id)
             resolve({
-                status:"OK",
-                message:"Delete SUCCESS",
+                status: "OK",
+                message: "Delete SUCCESS",
             })
-        }catch(e){
+        } catch (e) {
             reject(e)
         }
     })
 }
 
-const softDeleteUser = (id) =>{
-    return new Promise(async(resolve,reject)=>{
-        try{
+const softDeleteUser = (id) => {
+    return new Promise(async (resolve, reject) => {
+        try {
             const checkUser = await User.findOne({
                 _id: id
             })
-            if(checkUser === null){
+            if (checkUser === null) {
                 resolve({
-                    status:"404",
-                    message:"the user is not defined"
+                    status: "404",
+                    message: "the user is not defined"
                 })
             }
-            const softDeleteUser = await User.findByIdAndUpdate(id,{isDelete:true})
+            const softDeleteUser = await User.findByIdAndUpdate(id, { isDelete: true })
             resolve({
-                status:"OK",
-                message:"SUCCESS",
+                status: "OK",
+                message: "SUCCESS",
             })
-        }catch(e){
+        } catch (e) {
             reject(e)
         }
     })
 }
 
-const getAllUser = () =>{
-    return new Promise(async(resolve,reject)=>{
-        try{
-            const getAllUser = await User.find({isDelete:false})
+const getAllUser = () => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const getAllUser = await User.find({ isDelete: false })
             resolve({
-                status:"OK",
-                message:"SUCCESS",
+                status: "OK",
+                message: "SUCCESS",
                 data: getAllUser
             })
-        }catch(e){
+        } catch (e) {
             reject(e)
         }
     })
 }
 
-const getDetailUser = (id) =>{
-    return new Promise(async(resolve,reject)=>{
-        try{
+const getDetailUser = (id) => {
+    return new Promise(async (resolve, reject) => {
+        try {
             const user = await User.findOne({
                 _id: id
             })
-            if(user === null){
+            if (user === null) {
                 resolve({
-                    status:"404",
-                    message:"the user is not defined"
+                    status: "404",
+                    message: "the user is not defined"
                 })
             }
             resolve({
-                status:"OK",
-                message:"SUCCESS",
+                status: "OK",
+                message: "SUCCESS",
                 data: user
             })
-        }catch(e){
+        } catch (e) {
             reject(e)
         }
     })

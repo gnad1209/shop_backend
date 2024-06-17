@@ -39,7 +39,6 @@ const sendEmailCreateOrder = async (email, orderItems) => {
       console.log('Email sent: ' + info.response);
     }
   });
-  console.log(process.env.MAIL_PASSWORD)
 }
 
 module.exports = {
