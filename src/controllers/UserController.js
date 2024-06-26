@@ -1,37 +1,37 @@
 const UserService = require('../services/UserService')
 const JwtService = require('../services/JwtService')
 
-const createUser = async (req,res) =>{
-    try{
-        const {name,email,password,confirmPassword,phone} = req.body
-        const reg =  /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
+const createUser = async (req, res) => {
+    try {
+        const { name, email, password, confirmPassword, phone } = req.body
+        const reg = /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
         const isCheckEmail = reg.test(email)
-        if(!email||!password||!confirmPassword){
+        if (!email || !password || !confirmPassword) {
             return res.status(400).json({
-                status:'ERR',
-                message:'the input reuired'
+                status: 'ERR',
+                message: 'the input reuired'
             })
-        }else if(!isCheckEmail){
+        } else if (!isCheckEmail) {
             return res.status(400).json({
-                status:'ERR',
-                message:'the input email'
+                status: 'ERR',
+                message: 'the input email'
             })
-        }else if(password !== confirmPassword){
+        } else if (password !== confirmPassword) {
             return res.status(400).json({
-                status:'ERR',
-                message:'the input password'
+                status: 'ERR',
+                message: 'the input password'
             })
         }
         const response = await UserService.createUser(req.body)
         return res.status(200).json(response)
-    }catch(e){
+    } catch (e) {
         return res.status(404).json({
-            message:e
+            message: e
         })
     }
 }
 
-const loginUser = async (req,res) =>{
+const loginUser = async (req, res) => {
     try {
         const { email, password } = req.body
         const reg = /^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/
@@ -55,7 +55,7 @@ const loginUser = async (req,res) =>{
             sameSite: 'strict',
             path: '/',
         })
-        return res.status(200).json({...newReponse, refresh_token})
+        return res.status(200).json({ ...newReponse, refresh_token })
     } catch (e) {
         return res.status(404).json({
             message: e
@@ -63,92 +63,92 @@ const loginUser = async (req,res) =>{
     }
 }
 
-const updateUser = async (req,res) =>{
-    try{
+const updateUser = async (req, res) => {
+    try {
         const userId = req.params.id
         const data = req.body
         const file = req.file
-        if(!userId){
+        if (!userId) {
             return res.status(400).json({
-                status:'ERR',
-                message:'the userid is required'
+                status: 'ERR',
+                message: 'the userid is required'
             })
         }
         const upload = await UserService.uploadImage(file)
         data.avatar = upload.url
         console.log(file)
-        const response = await UserService.updateUser(userId,data)
+        const response = await UserService.updateUser(userId, data)
         return res.status(200).json(response)
-    }catch(e){
+    } catch (e) {
         return res.status(404).json({
-            message:e
+            message: e
         })
     }
 }
 
-const deleteUser = async (req,res) =>{
-    try{
+const deleteUser = async (req, res) => {
+    try {
         const userId = req.params.id
         const token = req.headers
-        if(!userId){
+        if (!userId) {
             return res.status(400).json({
-                status:'ERR',
-                message:'the userid is required'
+                status: 'ERR',
+                message: 'the userid is required'
             })
         }
         const response = await UserService.deleteUser(userId)
         return res.status(200).json(response)
-    }catch(e){
+    } catch (e) {
         return res.status(404).json({
-            message:e
+            message: e
         })
     }
 }
 
-const softDeleteUser = async (req,res) =>{
-    try{
+const softDeleteUser = async (req, res) => {
+    try {
         const userId = req.params.id
         const token = req.headers
-        if(!userId){
+        if (!userId) {
             return res.status(400).json({
-                status:'ERR',
-                message:'the userid is required'
+                status: 'ERR',
+                message: 'the userid is required'
             })
         }
         const response = await UserService.softDeleteUser(userId)
         return res.status(200).json(response)
-    }catch(e){
+    } catch (e) {
         return res.status(404).json({
-            message:e
+            message: e
         })
     }
 }
 
-const getAllUser = async (req,res) =>{
-    try{
+const getAllUser = async (req, res) => {
+    try {
         const response = await UserService.getAllUser()
         return res.status(200).json(response)
-    }catch(e){
+    } catch (e) {
         return res.status(404).json({
-            message:e
+            message: e
         })
     }
 }
 
-const getDetailUser = async (req,res) =>{
-    try{
+const getDetailUser = async (req, res) => {
+    try {
         const userId = req.params.id
-        if(!userId){
+        if (!userId) {
             return res.status(400).json({
-                status:'ERR',
-                message:'the userid is required'
+                status: 'ERR',
+                message: 'the userid is required'
             })
         }
         const response = await UserService.getDetailUser(userId)
         return res.status(200).json(response)
-    }catch(e){
+    } catch (e) {
         return res.status(404).json({
-            message:e
+            message: e
         })
     }
 }
@@ -171,16 +171,16 @@ const refreshToken = async (req, res) => {
     }
 }
 
-const logoutUser = async (req,res) =>{
-    try{
+const logoutUser = async (req, res) => {
+    try {
         res.clearCookie('refresh_token')
         return res.status(200).json({
-            status:'OK',
-            message:'Logout success'
+            status: 'OK',
+            message: 'Logout success'
         })
-    }catch(e){
+    } catch (e) {
         return res.status(404).json({
-            message:e
+            message: e
         })
     }
 }
