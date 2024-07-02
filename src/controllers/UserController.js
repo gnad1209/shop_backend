@@ -126,7 +126,13 @@ const softDeleteUser = async (req, res) => {
 
 const getAllUser = async (req, res) => {
     try {
-        const response = await UserService.getAllUser()
+        const filter = req.query
+        let response
+        if (filter.length > 0) {
+            response = await UserService.getAllUser(filter)
+        } else {
+            response = await UserService.getAllUser()
+        }
         return res.status(200).json(response)
     } catch (e) {
         return res.status(404).json({
@@ -185,6 +191,24 @@ const logoutUser = async (req, res) => {
     }
 }
 
+const getFollower = async (req, res) => {
+    try {
+        const userId = req.params.id
+        if (!userId) {
+            return res.status(400).json({
+                status: 'ERR',
+                message: 'the userid is required'
+            })
+        }
+        const response = await UserService.getFollower(userId)
+        return res.status(200).json(response)
+    } catch (e) {
+        return res.status(404).json({
+            message: e
+        })
+    }
+}
+
 module.exports = {
     createUser,
     loginUser,
@@ -194,5 +218,6 @@ module.exports = {
     getDetailUser,
     softDeleteUser,
     refreshToken,
-    logoutUser
+    logoutUser,
+    getFollower
 }

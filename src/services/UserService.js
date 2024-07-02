@@ -180,14 +180,28 @@ const softDeleteUser = (id) => {
     })
 }
 
-const getAllUser = () => {
+const getAllUser = (filter) => {
     return new Promise(async (resolve, reject) => {
         try {
+            const totalUser = await User.countDocuments()
+            if (filter) {
+                const objectFilter = {}
+                objectFilter[filter[1]] = filter[0]
+                const lable = filter[0]
+                const getAllUserFilter = await User.find({ isDelete: false, [lable]: { '$regex': filter[1] } })
+                resolve({
+                    status: "OK",
+                    message: "SUCCESS",
+                    data: getAllUserFilter,
+                    total: totalUser,
+                })
+            }
             const getAllUser = await User.find({ isDelete: false })
             resolve({
                 status: "OK",
                 message: "SUCCESS",
-                data: getAllUser
+                data: getAllUser,
+                total: totalUser,
             })
         } catch (e) {
             reject(e)
@@ -218,6 +232,33 @@ const getDetailUser = (id) => {
     })
 }
 
+const getFollower = (id) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const getUser = await User.findOne({ _id: id })
+            if (!getUser?.isAdmin) {
+                const listFollower = Promise.all(getUser?.follow.map(async (fl) => {
+                    const follower = await User.findOne({ isDelete: false, _id: fl })
+                    return { id: follower._id, email: follower.email, name: follower.name, avatar: follower?.avatar }
+                }))
+                resolve({
+                    status: "OK",
+                    message: "SUCCESS",
+                    data: await listFollower
+                })
+            } else {
+                const getAllUser = await User.find({ isDelete: false })
+                resolve({
+                    status: "OK",
+                    message: "SUCCESS",
+                    data: getAllUser
+                })
+            }
+        } catch (e) {
+            reject(e)
+        }
+    })
+}
 
 module.exports = {
     createUser,
@@ -228,4 +269,5 @@ module.exports = {
     getAllUser,
     getDetailUser,
     softDeleteUser,
+    getFollower
 }
