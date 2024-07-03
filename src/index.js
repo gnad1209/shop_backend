@@ -17,7 +17,7 @@ const port = process.env.PORT || 9000
 
 const io = require("socket.io")(8080, {
     cors: {
-        origin: "http://localhost:3000"
+        origin: "https://shop-gold-eight.vercel.app"
     }
 });
 
