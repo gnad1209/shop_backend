@@ -15,9 +15,11 @@ dotenv.config()
 
 const port = process.env.PORT || 9000
 
-const io = require("socket.io")(8080, {
+const io = require("socket.io")(server, {
     cors: {
-        origin: "https://shop-gold-eight.vercel.app"
+        origin: "https://shop-gold-eight.vercel.app",
+        methods: ["GET", "POST"],
+        credentials: true
     }
 });
 
