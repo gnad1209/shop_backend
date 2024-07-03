@@ -15,7 +15,7 @@ const port = process.env.PORT || 9000
 
 const app = express();
 const server = http.createServer(app);
-const io = socketIo(80, {
+const io = socketIo(server, {
     cors: {
         origin: "https://shop-gold-eight.vercel.app",
         methods: ["GET", "POST"],
