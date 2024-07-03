@@ -7,22 +7,18 @@ const bodyParser = require("body-parser");
 const cors = require('cors')
 const cookieParser = require("cookie-parser")
 const http = require("http")
-const socketIo = require('socket.io');;
+const app = express();
+const server = http.createServer(app);
 const Users = require('./models/UserModel')
 dotenv.config()
 
 const port = process.env.PORT || 9000
 
-const app = express();
-const server = http.createServer(app);
-const io = socketIo(server, {
-    cors: {
-        origin: "https://shop-gold-eight.vercel.app",
-        // methods: ["GET", "POST"],
-        // credentials: true
+const io = require("socket.io")(9000,{
+    cors:{
+        origin:"https://shop-gold-eight.vercel.app"
     }
 });
-
 app.use(cors())
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb' }));
