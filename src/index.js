@@ -8,14 +8,14 @@ const cors = require('cors')
 const cookieParser = require("cookie-parser")
 const http = require("http")
 const socketIo = require('socket.io');;
-const app = express()
-const server = http.createServer(app);
 const Users = require('./models/UserModel')
 dotenv.config()
 
 const port = process.env.PORT || 9000
 
-const io = require("socket.io")(server, {
+const app = express();
+const server = http.createServer(app);
+const io = socketIo(server, {
     cors: {
         origin: "https://shop-gold-eight.vercel.app",
         methods: ["GET", "POST"],
