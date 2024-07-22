@@ -7,8 +7,7 @@ const bodyParser = require("body-parser");
 const cors = require('cors')
 const cookieParser = require("cookie-parser")
 const http = require("http")
-const socketIo = require('socket.io');;
-const app = express()
+const app = express();
 const server = http.createServer(app);
 const Users = require('./models/UserModel')
 dotenv.config()
