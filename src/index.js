@@ -11,21 +11,21 @@ const app = express();
 const server = http.createServer(app);
 const Users = require("./models/UserModel");
 dotenv.config();
-
-const port = process.env.PORT || 9000;
-
-// const io = require("socket.io")(8080, {
-//     cors: {
-//         origin: "http://localhost:3000"
-//     }
-// });
 const io = require("socket.io")(server, {
   cors: {
     origin: "http://localhost:3000",
-    methods: ["GET", "POST"],
-    credentials: true,
   },
 });
+
+const port = process.env.PORT;
+
+// const io = require("socket.io")(8080, {
+//   cors: {
+//     origin: "http://localhost:3000",
+//     methods: ["GET", "POST"],
+//     credentials: true,
+//   },
+// });
 app.use(cors());
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb" }));
@@ -52,16 +52,19 @@ io.on("connection", (socket) => {
       const sender = users.find((user) => user.userId === senderId);
       const user = await Users.findById(senderId);
 
+      if (!sender) {
+        console.error(`Sender with ID ${senderId} not found`);
+        return;
+      }
+
       if (reciver) {
-        io.to(reciver.socketId)
-          .to(sender.socketId)
-          .emit("getMessage", {
-            senderId,
-            message,
-            conversationId,
-            reciverId,
-            user: { id: user._id, name: user.name, email: user.email },
-          });
+        io.to(reciver.socketId).emit("getMessage", {
+          senderId,
+          message,
+          conversationId,
+          reciverId,
+          user: { id: user._id, name: user.name, email: user.email },
+        });
       } else {
         io.to(sender.socketId).emit("getMessage", {
           senderId,
