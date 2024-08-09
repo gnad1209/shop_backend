@@ -13,7 +13,9 @@ const Users = require("./models/UserModel");
 dotenv.config();
 const io = require("socket.io")(server, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: "https://shop-gold-eight.vercel.app/",
+    methods: ["GET", "POST"],
+    credentials: true,
   },
 });
 
