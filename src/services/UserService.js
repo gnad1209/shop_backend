@@ -306,9 +306,8 @@ const getUserInMessage = (id, filter) => {
       const data = {};
       if (!user?.isAdmin) {
         data.findUser = await findUserInMessage(filter, true);
-        console.log(data.findUser);
       } else {
-        data.findUser = findUserInMessage(filter);
+        data.findUser = await findUserInMessage(filter);
       }
       resolve({
         status: "OK",
@@ -324,14 +323,24 @@ const getUserInMessage = (id, filter) => {
 const findUserInMessage = (filter, choose) => {
   return new Promise(async (resolve, reject) => {
     try {
-      Object.keys(filter).forEach(async (key) => {
-        const findUser = await User.find({
-          name: { $regex: filter[key] },
-          isAdmin: choose,
-          isDelete: false,
+      if (choose) {
+        Object.keys(filter).forEach(async (key) => {
+          const findUser = await User.find({
+            name: { $regex: filter[key] },
+            isAdmin: choose,
+            isDelete: false,
+          });
+          resolve(findUser);
         });
-        resolve(findUser);
-      });
+      } else {
+        Object.keys(filter).forEach(async (key) => {
+          const findUser = await User.find({
+            name: { $regex: filter[key] },
+            isDelete: false,
+          });
+          resolve(findUser);
+        });
+      }
     } catch (e) {
       reject(e);
     }
