@@ -297,23 +297,32 @@ const getUserInMessage = (id, filter) => {
       const user = await User.findOne({
         _id: id,
       });
+      let data = {};
       if (user === null) {
         resolve({
           status: "404",
           message: "the user is not defined",
         });
       }
-      const data = {};
-      if (!user?.isAdmin) {
-        data.findUser = await findUserInMessage(filter, true);
+      if (Object.keys(filter).length === 0 && filter.constructor === Object) {
+        resolve({
+          status: "OK",
+          message: "SUCCESS",
+          data: [],
+        }); // Trả về một mảng rỗng nếu filter là object rỗng
       } else {
-        data.findUser = await findUserInMessage(filter);
+        console.log("object");
+        if (!user?.isAdmin) {
+          data = await findUserInMessage(filter, true);
+        } else {
+          data = await findUserInMessage(filter);
+        }
+        resolve({
+          status: "OK",
+          message: "SUCCESS",
+          data: data,
+        });
       }
-      resolve({
-        status: "OK",
-        message: "SUCCESS",
-        data: data,
-      });
     } catch (e) {
       reject(e);
     }
