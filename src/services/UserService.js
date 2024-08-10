@@ -291,6 +291,53 @@ const addFollower = async (senderId, reciverId) => {
   }
 };
 
+const getUserInMessage = (id, filter) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const user = await User.findOne({
+        _id: id,
+      });
+      if (user === null) {
+        resolve({
+          status: "404",
+          message: "the user is not defined",
+        });
+      }
+      const data = {};
+      if (!user?.isAdmin) {
+        data.findUser = await findUserInMessage(filter, true);
+        console.log(data.findUser);
+      } else {
+        data.findUser = findUserInMessage(filter);
+      }
+      resolve({
+        status: "OK",
+        message: "SUCCESS",
+        data: data,
+      });
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
+const findUserInMessage = (filter, choose) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      Object.keys(filter).forEach(async (key) => {
+        const findUser = await User.find({
+          name: { $regex: filter[key] },
+          isAdmin: choose,
+          isDelete: false,
+        });
+        resolve(findUser);
+      });
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
 module.exports = {
   createUser,
   loginUser,
@@ -302,4 +349,5 @@ module.exports = {
   softDeleteUser,
   getFollower,
   addFollower,
+  getUserInMessage,
 };

@@ -28,6 +28,7 @@ router.delete(
 );
 router.get("/getAll", authMiddleware, userController.getAllUser);
 router.get("/get-detail/:id", authUserMiddleware, userController.getDetailUser);
+router.get("/get-user-message/:id", userController.getUserInMessage);
 router.get("/get-follower/:id", userController.getFollower);
 router.get("/add-follower", userController.addFollower);
 router.post("/refresh-token", userController.refreshToken);
