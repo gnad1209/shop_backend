@@ -291,69 +291,54 @@ const addFollower = async (senderId, reciverId) => {
   }
 };
 
-const getUserInMessage = (id, filter) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const user = await User.findOne({
-        _id: id,
-      });
-      let data = {};
-      if (user === null) {
-        resolve({
-          status: "404",
-          message: "the user is not defined",
-        });
-      }
-      if (Object.keys(filter).length === 0 && filter.constructor === Object) {
-        resolve({
-          status: "OK",
-          message: "SUCCESS",
-          data: [],
-        }); // Trả về một mảng rỗng nếu filter là object rỗng
-      } else {
-        console.log("object");
-        if (!user?.isAdmin) {
-          data = await findUserInMessage(filter, true);
-        } else {
-          data = await findUserInMessage(filter);
-        }
-        resolve({
-          status: "OK",
-          message: "SUCCESS",
-          data: data,
-        });
-      }
-    } catch (e) {
-      reject(e);
+const getUserInMessage = async (id, filter = {}) => {
+  try {
+    const user = await User.findById(id);
+    if (!user) {
+      return {
+        status: "404",
+        message: "The user is not defined",
+      };
     }
-  });
+
+    const follower = await getFollower(id);
+
+    if (Object.keys(filter).length === 0) {
+      follower.data = await findUserInMessage(filter, !user.isAdmin);
+    } else {
+      const userHasFound = await findUserInMessage(filter, !user.isAdmin);
+      follower.data.push(userHasFound);
+    }
+
+    return follower;
+  } catch (e) {
+    return {
+      status: "ERROR",
+      message: e.message,
+    };
+  }
 };
 
-const findUserInMessage = (filter, choose) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      if (choose) {
-        Object.keys(filter).forEach(async (key) => {
-          const findUser = await User.find({
-            name: { $regex: filter[key] },
-            isAdmin: choose,
-            isDelete: false,
-          });
-          resolve(findUser);
-        });
-      } else {
-        Object.keys(filter).forEach(async (key) => {
-          const findUser = await User.find({
-            name: { $regex: filter[key] },
-            isDelete: false,
-          });
-          resolve(findUser);
-        });
-      }
-    } catch (e) {
-      reject(e);
+const findUserInMessage = async (filter = {}, isAdmin) => {
+  try {
+    const query = {
+      isDelete: false,
+    };
+
+    if (Object.keys(filter).length > 0) {
+      const filterKeys = Object.keys(filter).map((key) => ({
+        name: { $regex: filter[key] },
+      }));
+      query.$or = filterKeys;
     }
-  });
+    if (isAdmin === true) {
+      query.isAdmin = isAdmin;
+    }
+
+    return await User.find(query);
+  } catch (e) {
+    throw new Error(`Error finding users: ${e.message}`);
+  }
 };
 
 module.exports = {
