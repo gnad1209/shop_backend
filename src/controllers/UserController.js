@@ -31,7 +31,7 @@ const createUser = async (req, res) => {
     });
   }
 };
-
+//a
 const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -234,6 +234,25 @@ const addFollower = async (req, res) => {
   }
 };
 
+const getUserInMessage = async (req, res) => {
+  try {
+    const filter = req.query;
+    const userId = req.params.id;
+    if (!userId) {
+      return res.status(400).json({
+        status: "ERR",
+        message: "the userid is required",
+      });
+    }
+    const response = await UserService.getUserInMessage(userId, filter);
+    return res.status(200).json(response);
+  } catch (e) {
+    return res.status(404).json({
+      message: e,
+    });
+  }
+};
+
 module.exports = {
   createUser,
   loginUser,
@@ -246,4 +265,5 @@ module.exports = {
   logoutUser,
   getFollower,
   addFollower,
+  getUserInMessage,
 };

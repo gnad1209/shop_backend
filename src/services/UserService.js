@@ -291,6 +291,56 @@ const addFollower = async (senderId, reciverId) => {
   }
 };
 
+const getUserInMessage = async (id, filter = {}) => {
+  try {
+    const user = await User.findById(id);
+    if (!user) {
+      return {
+        status: "404",
+        message: "The user is not defined",
+      };
+    }
+
+    const follower = await getFollower(id);
+
+    if (Object.keys(filter).length === 0) {
+      follower.data = await findUserInMessage(filter, !user.isAdmin);
+    } else {
+      const userHasFound = await findUserInMessage(filter, !user.isAdmin);
+      follower.data.push(userHasFound);
+    }
+
+    return follower;
+  } catch (e) {
+    return {
+      status: "ERROR",
+      message: e.message,
+    };
+  }
+};
+
+const findUserInMessage = async (filter = {}, isAdmin) => {
+  try {
+    const query = {
+      isDelete: false,
+    };
+
+    if (Object.keys(filter).length > 0) {
+      const filterKeys = Object.keys(filter).map((key) => ({
+        name: { $regex: filter[key] },
+      }));
+      query.$or = filterKeys;
+    }
+    if (isAdmin === true) {
+      query.isAdmin = isAdmin;
+    }
+
+    return await User.find(query);
+  } catch (e) {
+    throw new Error(`Error finding users: ${e.message}`);
+  }
+};
+
 module.exports = {
   createUser,
   loginUser,
@@ -302,4 +352,5 @@ module.exports = {
   softDeleteUser,
   getFollower,
   addFollower,
+  getUserInMessage,
 };
