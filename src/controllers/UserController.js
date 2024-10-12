@@ -1,5 +1,9 @@
 const UserService = require("../services/UserService");
 const JwtService = require("../services/JwtService");
+const { OAuth2Client } = require("google-auth-library");
+const client_id = process.env.GG_CLIENTID;
+const client = new OAuth2Client(client_id);
+const User = require("../models/UserModel");
 
 const createUser = async (req, res) => {
   try {
@@ -49,6 +53,9 @@ const loginUser = async (req, res) => {
       });
     }
     const response = await UserService.loginUser(req.body);
+    if (!response || response.status === "ERR") {
+      return res.status(400).json({ status: 400, message: "Login fail" });
+    }
     const { refresh_token, ...newReponse } = response;
     res.cookie("refresh_token", refresh_token, {
       httpOnly: true,
@@ -252,6 +259,46 @@ const getUserInMessage = async (req, res) => {
     });
   }
 };
+const verifyTokenGG = async (req, res) => {
+  try {
+    const body = req.body;
+    const ticket = await client.verifyIdToken({
+      idToken: body.token,
+      audience: client_id,
+    });
+    const data = ticket.getPayload();
+    const createUser = await UserService.createUser({
+      name: data.name,
+      email: data.email,
+      password: "12345678",
+      confirmPassword: "12345678",
+    });
+    if (createUser.message === "the email is already") {
+      const user = await User.findOne({ email: data.email });
+      if (!user) {
+        res.status(400).json("Login fail");
+      }
+      const response = await UserService.loginUser({
+        email: data.email,
+        password: "",
+        gg_password: user.password,
+      });
+      if (!response || response.status === "ERR") {
+        return res.status(400).json({ status: 400, message: "Login fail" });
+      }
+      const { refresh_token, ...newReponse } = response;
+      res.cookie("refresh_token", refresh_token, {
+        httpOnly: true,
+        secure: false,
+        sameSite: "strict",
+        path: "/",
+      });
+      return res.status(200).json({ ...newReponse, refresh_token });
+    }
+  } catch (e) {
+    return e;
+  }
+};
 
 module.exports = {
   createUser,
@@ -266,4 +313,5 @@ module.exports = {
   getFollower,
   addFollower,
   getUserInMessage,
+  verifyTokenGG,
 };
