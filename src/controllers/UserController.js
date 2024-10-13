@@ -1,5 +1,7 @@
 const UserService = require("../services/UserService");
 const JwtService = require("../services/JwtService");
+const dotenv = require("dotenv");
+dotenv.config();
 const { OAuth2Client } = require("google-auth-library");
 const client_id = process.env.GG_CLIENTID;
 const client = new OAuth2Client(client_id);
@@ -277,6 +279,9 @@ const verifyTokenGG = async (req, res) => {
       const user = await User.findOne({ email: data.email });
       if (!user) {
         res.status(400).json("Login fail");
+      }
+      if (!user?.avatar) {
+        await UserService.updateUser(user._id, { avatar: data.picture });
       }
       const response = await UserService.loginUser({
         email: data.email,
