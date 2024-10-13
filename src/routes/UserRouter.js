@@ -33,5 +33,6 @@ router.get("/get-follower/:id", userController.getFollower);
 router.get("/add-follower", userController.addFollower);
 router.post("/refresh-token", userController.refreshToken);
 router.post("/gg-login", userController.verifyTokenGG);
+router.post("/fb-login", userController.verifyTokenFb);
 
 module.exports = router;

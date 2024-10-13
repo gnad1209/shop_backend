@@ -305,6 +305,45 @@ const verifyTokenGG = async (req, res) => {
   }
 };
 
+const verifyTokenFb = async (req, res) => {
+  try {
+    const body = req.body;
+    const createUser = await UserService.createUser({
+      name: body.name,
+      email: body.email,
+      password: "12345678",
+      confirmPassword: "12345678",
+    });
+    if (createUser.message === "the email is already") {
+      const user = await User.findOne({ email: body.email });
+      if (!user) {
+        res.status(400).json("Login fail");
+      }
+      if (!user?.avatar) {
+        await UserService.updateUser(user._id, { avatar: body.picture });
+      }
+      const response = await UserService.loginUser({
+        email: body.email,
+        password: "",
+        gg_password: user.password,
+      });
+      if (!response || response.status === "ERR") {
+        return res.status(400).json({ status: 400, message: "Login fail" });
+      }
+      const { refresh_token, ...newReponse } = response;
+      res.cookie("refresh_token", refresh_token, {
+        httpOnly: true,
+        secure: false,
+        sameSite: "strict",
+        path: "/",
+      });
+      return res.status(200).json({ ...newReponse, refresh_token });
+    }
+  } catch (e) {
+    return e;
+  }
+};
+
 module.exports = {
   createUser,
   loginUser,
@@ -319,4 +358,5 @@ module.exports = {
   addFollower,
   getUserInMessage,
   verifyTokenGG,
+  verifyTokenFb,
 };
