@@ -327,7 +327,7 @@ const addFollower = async (senderId, reciverId) => {
       { _id: senderId },
       { $push: { follow: [reciverId] } }
     );
-    res.status(200).send("Follower created succesfully");
+    return { status: 200, message: "Follower created succesfully" };
   } catch (error) {
     console.log("Error", error);
   }
