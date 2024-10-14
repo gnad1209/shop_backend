@@ -13,7 +13,7 @@ const Users = require("./models/UserModel");
 dotenv.config();
 const io = require("socket.io")(server, {
   cors: {
-    origin: "https://shop-gold-eight.vercel.app/",
+    origin: ["http://localhost:3000", "https://shopdanga.vercel.app"],
     methods: ["GET", "POST"],
     credentials: true,
   },
@@ -25,6 +25,11 @@ app.use(cors());
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb" }));
 app.use(cookieParser());
+app.use((req, res, next) => {
+  res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
+  res.setHeader("Cross-Origin-Embedder-Policy", "same-origin");
+  next();
+});
 
 routes(app);
 

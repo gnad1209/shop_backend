@@ -34,7 +34,7 @@ const createProduct = (newProduct) => {
       if (checkProduct !== null) {
         resolve({
           status: "OK",
-          message: "the email is already",
+          message: "the name is already",
         });
       }
       const createProduct = await Product.create({

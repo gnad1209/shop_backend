@@ -1,5 +1,6 @@
 const User = require("../models/UserModel");
 const bcrypt = require("bcrypt");
+const { OAuth2Client } = require("google-auth-library");
 const {
   genneralAccessToken,
   genneralRefreshToken,
@@ -8,12 +9,25 @@ const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
 dotenv.config();
 const cloudinary = require("cloudinary").v2;
+const client_id = process.env.GG_CLIENTID;
+const client = new OAuth2Client(client_id);
 
 cloudinary.config({
   cloud_name: process.env.CLOUD_NAME,
   api_key: process.env.API_KEY,
   api_secret: process.env.API_SECRET,
 });
+
+const verifyTokenGG = async (token) => {
+  try {
+    const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: client_id,
+    });
+  } catch (e) {
+    return e;
+  }
+};
 
 const createUser = (newUser) => {
   return new Promise(async (resolve, reject) => {
@@ -26,6 +40,12 @@ const createUser = (newUser) => {
         resolve({
           status: "ERR",
           message: "the email is already",
+        });
+      }
+      if (password !== confirmPassword) {
+        resolve({
+          status: "ERR",
+          message: "the password fail",
         });
       }
       const hash = bcrypt.hashSync(password, 10);
@@ -50,7 +70,7 @@ const createUser = (newUser) => {
 };
 const loginUser = (userLogin) => {
   return new Promise(async (resolve, reject) => {
-    const { email, password } = userLogin;
+    const { email, password, gg_password } = userLogin;
     try {
       const checkUser = await User.findOne({
         email: email,
@@ -61,8 +81,30 @@ const loginUser = (userLogin) => {
           message: "the email is not defined",
         });
       }
-      const comparePassword = bcrypt.compareSync(password, checkUser.password);
-      if (!comparePassword) {
+      if (password !== "" && !gg_password) {
+        const comparePassword = bcrypt.compareSync(
+          password,
+          checkUser.password
+        );
+        if (!comparePassword) {
+          resolve({
+            status: "ERR",
+            message: "the password is incorrect",
+          });
+        }
+      }
+      if (password === "" && gg_password) {
+        if (gg_password !== checkUser.password) {
+          resolve({
+            status: "ERR",
+            message: "the password is incorrect",
+          });
+        }
+      }
+      if (
+        (password === "" && !gg_password) ||
+        (password !== "" && gg_password)
+      ) {
         resolve({
           status: "ERR",
           message: "the password is incorrect",
@@ -285,7 +327,7 @@ const addFollower = async (senderId, reciverId) => {
       { _id: senderId },
       { $push: { follow: [reciverId] } }
     );
-    res.status(200).send("Follower created succesfully");
+    return { status: 200, message: "Follower created succesfully" };
   } catch (error) {
     console.log("Error", error);
   }

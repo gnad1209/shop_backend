@@ -10,7 +10,7 @@ router.post("/create", upload.single("image"), ProductController.createProduct);
 router.put(
   "/update/:id",
   upload.single("image"),
-  authMiddleware,
+  // authMiddleware,
   ProductController.updateProduct
 );
 router.get("/detail/:id", ProductController.getDetailProduct);
