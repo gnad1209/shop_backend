@@ -17,7 +17,6 @@ const io = require("socket.io")(server, {
     methods: ["GET", "POST"],
     credentials: true,
   },
-  transports: ["websocket"],
 });
 
 const port = process.env.PORT;
