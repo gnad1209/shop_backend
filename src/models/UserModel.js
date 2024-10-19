@@ -1,7 +1,8 @@
-const mongoose = require('mongoose')
+const mongoose = require("mongoose");
 
-const userSchema = new mongoose.Schema({
-    name: { type: String },
+const userSchema = new mongoose.Schema(
+  {
+    name: { type: String, index: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     isAdmin: { type: Boolean, default: false, required: true },
@@ -10,12 +11,12 @@ const userSchema = new mongoose.Schema({
     avatar: { type: String },
     city: { type: String },
     isDelete: { type: Boolean, default: false, required: true },
-    follow: { type: Array }
-},
-    {
-        timestamps: true
-    }
-)
-const User = mongoose.model('User', userSchema)
+    follow: { type: Array },
+  },
+  {
+    timestamps: true,
+  }
+);
+const User = mongoose.model("User", userSchema);
 
-module.exports = User
+module.exports = User;

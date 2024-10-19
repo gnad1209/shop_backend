@@ -1,15 +1,13 @@
 const mongoose = require("mongoose");
 
-
 const ConversationSchema = new mongoose.Schema({
-    members: {
-        type: Array,
-        required: true,
-    }
+  members: {
+    type: Array,
+    required: true,
+    index: true,
+  },
 });
 
-
 const Conversation = mongoose.model("Conversation", ConversationSchema);
-
 
 module.exports = Conversation;
